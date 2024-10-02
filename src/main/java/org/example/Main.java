@@ -2,6 +2,7 @@ package org.example;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import org.example.commands.Profile;
 import org.example.commands.Sum;
 
 public class Main {
@@ -10,5 +11,6 @@ public class Main {
         JDA jda = JDABuilder.createDefault(Token.DISCORD_TOKEN).build();
         jda.addEventListener(new Listeners());
         jda.addEventListener(new Sum());
+        jda.addEventListener(new Profile());
     }
 }

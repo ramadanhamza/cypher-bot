@@ -10,9 +10,8 @@ public class Sum extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (!event.getName().equals("sum")) return;
-        OptionMapping number1 = event.getOption("number1");
-        int num1 = number1.getAsInt();
-        int num2 = event.getOption("number2").getAsInt();
-        event.reply(String.valueOf(num1 + num2)).queue();
+        int number1 = event.getOption("number1").getAsInt();
+        int number2 = event.getOption("number2").getAsInt();
+        event.reply(String.valueOf(number1 + number2)).queue();
     }
 }

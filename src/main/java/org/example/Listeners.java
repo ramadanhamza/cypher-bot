@@ -27,7 +27,32 @@ public class Listeners extends ListenerAdapter {
                         true
                 )
         ).queue();
+
+        guild.upsertCommand("profile", "Gives a profile overview for a valorant account.").addOptions(
+                new OptionData(
+                        OptionType.STRING,
+                        "region",
+                        "The account's region (AP | BR | EU | KR | LATAM | NA)",
+                        true
+                ),
+                new OptionData(
+                        OptionType.STRING,
+                        "name",
+                        "The account's name",
+                        true
+                ),
+                new OptionData(
+                        OptionType.STRING,
+                        "tag",
+                        "The account's tagline",
+                        true
+                )
+        ).queue();
     }
+
+
+
+
 
     /*@Override
     public void onReady(@NotNull ReadyEvent event) {
