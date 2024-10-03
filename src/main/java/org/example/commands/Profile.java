@@ -9,7 +9,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.example.models.PlayerProfile;
-import org.example.Token;
 import org.example.callbacks.FetchCurrentRankCallback;
 import org.example.callbacks.FetchHighestRankCallback;
 import org.example.callbacks.FetchProfileInfoCallback;
@@ -36,7 +35,7 @@ public class Profile extends ListenerAdapter {
 
         Request request = new Request.Builder()
                 .url(url)
-                .addHeader("Authorization", Token.VALORANT_API_KEY)
+                .addHeader("Authorization", System.getenv("VALORANT_API_KEY"))
                 .build();
 
         client.newCall(request).enqueue(new okhttp3.Callback() {
@@ -128,7 +127,7 @@ public class Profile extends ListenerAdapter {
 
         Request request = new Request.Builder()
                 .url(url)
-                .addHeader("Authorization", Token.VALORANT_API_KEY)
+                .addHeader("Authorization", System.getenv("VALORANT_API_KEY"))
                 .build();
 
         client.newCall(request).enqueue(new okhttp3.Callback() {
@@ -168,7 +167,7 @@ public class Profile extends ListenerAdapter {
 
         Request request = new Request.Builder()
                 .url(url)
-                .addHeader("Authorization", Token.VALORANT_API_KEY)
+                .addHeader("Authorization", System.getenv("VALORANT_API_KEY"))
                 .build();
 
         List<String> profileInfo = new ArrayList<String>();
