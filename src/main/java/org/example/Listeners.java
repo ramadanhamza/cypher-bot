@@ -13,20 +13,6 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         Guild guild = event.getJDA().getGuildById("1132368087665082418");
-        guild.upsertCommand("sum", "Gives the sum of two numbers.").addOptions(
-                new OptionData(
-                        OptionType.INTEGER,
-                        "number1",
-                        "The first number",
-                        true
-                ),
-                new OptionData(
-                        OptionType.INTEGER,
-                        "number2",
-                        "The second number",
-                        true
-                )
-        ).queue();
 
         guild.upsertCommand("profile", "Gives a profile overview for a valorant account.").addOptions(
                 new OptionData(
