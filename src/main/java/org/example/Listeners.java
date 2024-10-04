@@ -13,7 +13,9 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onReady(@NotNull ReadyEvent event) {
 
-        event.getJDA().upsertCommand("profile", "Gives a profile overview for a valorant account.").addOptions(
+        Guild guild = event.getJDA().getGuildById("1132368087665082418");
+
+        guild.getJDA().upsertCommand("profile", "Gives a profile overview for a valorant account.").addOptions(
                 new OptionData(
                         OptionType.STRING,
                         "region",
@@ -34,7 +36,7 @@ public class Listeners extends ListenerAdapter {
                 )
         ).queue();
 
-        event.getJDA().upsertCommand("matchHistory", "Gives the match history for a valorant account.").addOptions(
+        guild.getJDA().upsertCommand("matchHistory", "Gives the match history for a valorant account.").addOptions(
                 new OptionData(
                         OptionType.STRING,
                         "region",
