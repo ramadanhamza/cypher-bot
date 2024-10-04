@@ -155,8 +155,9 @@ public class Profile extends ListenerAdapter {
                 JSONObject data = json.getJSONObject("data");
                 JSONObject highestRankObject = data.getJSONObject("highest_rank");
                 String highestRankStr = highestRankObject.getString("patched_tier");
+                String highestRankAct = highestRankObject.getString("season");
 
-                callback.onSuccess(highestRankStr);
+                callback.onSuccess(highestRankStr, highestRankAct);
             }
         });
     }
@@ -169,8 +170,6 @@ public class Profile extends ListenerAdapter {
                 .url(url)
                 .addHeader("Authorization", System.getenv("VALORANT_API_KEY"))
                 .build();
-
-        List<String> profileInfo = new ArrayList<String>();
 
         client.newCall(request).enqueue(new okhttp3.Callback() {
 
@@ -217,8 +216,9 @@ public class Profile extends ListenerAdapter {
 
         fetchHighestRank(region, name, tag, event, new FetchHighestRankCallback() {
             @Override
-            public void onSuccess(String highestRank) {
-                profileBuilder.highestRank(highestRank);
+            public void onSuccess(String highestRank, String highestRankAct) {
+                profileBuilder.highestRank(highestRank)
+                        .highestRankAct(highestRankAct.replace("e", "Episode ").replace("a", " Act "));
 
                 fetchProfileInfo(name, tag, event, new FetchProfileInfoCallback() {
                     @Override

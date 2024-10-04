@@ -12,6 +12,7 @@ public class PlayerProfile {
     private String tag;
     private int accountLevel;
     private String highestRank;
+    private String highestRankAct;
     private String currentRank;
     private String cardIcon;
     private String rankIcon;
