@@ -244,7 +244,7 @@ public class Profile extends ListenerAdapter {
                                         .addField("\u200B", "", false)
                                         .addField("Region", profile.getRegion(), false)
                                         .addField("Level", Integer.toString(profile.getAccountLevel()), false)
-                                        .addField("Highest Rank", profile.getHighestRank(), false)
+                                        .addField("Highest Rank", profile.getHighestRank() + " (" + profile.getHighestRankAct() + ")", false)
                                         .addField("Current Rank", profile.getCurrentRank(), true)
                                         .setImage(profile.getRankIcon());
 
