@@ -145,6 +145,7 @@ public class MatchHistory extends ListenerAdapter {
                                     matchBuilder.mode(mode)
                                             .gameWon(gameWon)
                                             .map(mapName)
+                                            .startTime(startTime.replace("T", " | ").replaceAll("\\..*", ""))
                                             .kills(kills)
                                             .deaths(deaths)
                                             .assists(assists);
@@ -206,7 +207,7 @@ public class MatchHistory extends ListenerAdapter {
                             .addField("Deaths", Integer.toString(match.getDeaths()), true)
                             .addField("Assists", Integer.toString(match.getAssists()), true)
                             .setImage(match.getMapIcon())
-                            .setFooter(match.getMap() + " - " + match.getStartTime())
+                            .setFooter(match.getMap() + "   -   " + match.getStartTime() + " UTC")
                             .build();
 
                     embeds.add(embed);
