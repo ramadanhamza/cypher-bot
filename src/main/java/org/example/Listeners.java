@@ -15,7 +15,7 @@ public class Listeners extends ListenerAdapter {
 
         Guild guild = event.getJDA().getGuildById("1132368087665082418");
 
-        guild.getJDA().upsertCommand("profile", "Gives a profile overview for a valorant account.").addOptions(
+        guild.getJDA().upsertCommand("matchhistory", "Shows the last 3 games for a valorant account in the given mode.").addOptions(
                 new OptionData(
                         OptionType.STRING,
                         "region",
@@ -33,10 +33,16 @@ public class Listeners extends ListenerAdapter {
                         "tag",
                         "The account's tagline",
                         true
+                ),
+                new OptionData(
+                        OptionType.STRING,
+                        "mode",
+                        "The game mode (If you want to show all games modes, write : all)",
+                        true
                 )
         ).queue();
 
-        guild.getJDA().upsertCommand("matchHistory", "Gives the match history for a valorant account.").addOptions(
+        guild.getJDA().upsertCommand("profile", "Gives a profile overview for a valorant account.").addOptions(
                 new OptionData(
                         OptionType.STRING,
                         "region",

@@ -239,6 +239,7 @@ public class Profile extends ListenerAdapter {
                                 EmbedBuilder embedBuilder = new EmbedBuilder()
                                         .setColor(Color.LIGHT_GRAY)
                                         .setThumbnail(profile.getCardIcon())
+                                        .setThumbnail(profile.getCardIcon())
                                         .setTitle(profile.getName() + "#" + profile.getTag() + "'s profile")
                                         .addField("\u200B", "", false)
                                         .addField("Region", profile.getRegion(), false)
