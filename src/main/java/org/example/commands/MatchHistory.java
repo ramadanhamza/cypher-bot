@@ -97,7 +97,7 @@ public class MatchHistory extends ListenerAdapter {
         fetchMatchHistory(region, name, tag, event, new FetchMatchHistoryCallback() {
             @Override
             public void onSuccess(List<Match> matches) {
-                Match firstMatch = matches.getFirst();
+                Match firstMatch = matches.get(0);
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                         .setColor(Color.LIGHT_GRAY)
                         .addField("\u200B", "", false)
