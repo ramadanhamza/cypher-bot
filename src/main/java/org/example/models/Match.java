@@ -18,6 +18,7 @@ public class Match {
     private int kills;
     private int deaths;
     private int assists;
-    private int player;
+    private String playerName;
+    private String playerTag;
     private boolean gameWon;
 }

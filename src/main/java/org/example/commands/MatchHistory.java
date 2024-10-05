@@ -23,7 +23,9 @@ public class MatchHistory extends ListenerAdapter {
 
     public void fetchMatchHistory(String region, String name, String tag, String mode, @NotNull SlashCommandInteractionEvent event, FetchMatchHistoryCallback callback) {
 
-        String url = "https://api.henrikdev.xyz/valorant/v1/stored-matches/" + region + "/" + name + "/" + tag;
+        List<Match> matches = new ArrayList<>();
+
+        String url = "https://api.henrikdev.xyz/valorant/v1/account/" + name + "/" + tag;
 
         Request request = new Request.Builder()
                 .url(url)
@@ -48,63 +50,66 @@ public class MatchHistory extends ListenerAdapter {
                 String responseBody = response.body().string();
                 JSONObject json = new JSONObject(responseBody);
 
-                JSONArray matchHistoryData = json.getJSONArray("data");
+                JSONObject data = json.getJSONObject("data");
 
-                JSONArray matchHistoryDataMode = new JSONArray();
+                String playerName = data.getString("name");
+                String playerTag = data.getString("tag");
 
-                for (int i = 0; i < matchHistoryData.length(); i++) {
-                    JSONObject match = matchHistoryData.getJSONObject(i);
-                    JSONObject meta = match.getJSONObject("meta");
-                    String matchMode = meta.getString("mode");
-                    if (matchMode.equalsIgnoreCase(mode) || mode.equalsIgnoreCase("all")) {
-                        matchHistoryDataMode.put(match);
-                    }
-                }
-
-                final int totalMatches = Math.min(3, matchHistoryDataMode.length());
-
-                String agentsUrl = "https://valorant-api.com/v1/agents";
+                String url = "https://api.henrikdev.xyz/valorant/v1/stored-matches/" + region + "/" + name + "/" + tag;
 
                 Request request = new Request.Builder()
-                        .url(agentsUrl)
+                        .url(url)
+                        .addHeader("Authorization", System.getenv("VALORANT_API_KEY"))
                         .build();
 
-                client.newCall(request).enqueue(new Callback() {
+                client.newCall(request).enqueue(new okhttp3.Callback() {
+
                     @Override
                     public void onFailure(Call call, IOException e) {
-                        event.getHook().editOriginal("Failed to retrieve data from the Valorant API").queue();
                         e.printStackTrace();
+                        callback.onFailure("Failed to retrieve data from the Valorant API");
                     }
 
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         if (!response.isSuccessful()) {
-                            event.getHook().editOriginal("Error: API request failed").queue();
+                            callback.onFailure("Error: API request failed");
                             return;
                         }
-
-                        List<Match> matches = new ArrayList<>();
 
                         String responseBody = response.body().string();
                         JSONObject json = new JSONObject(responseBody);
 
-                        JSONArray agentData = json.getJSONArray("data");
+                        JSONArray matchHistoryData = json.getJSONArray("data");
 
-                        String mapsUrl = "https://valorant-api.com/v1/maps";
+                        JSONArray matchHistoryDataMode = new JSONArray();
+
+                        for (int i = 0; i < matchHistoryData.length(); i++) {
+                            JSONObject match = matchHistoryData.getJSONObject(i);
+                            JSONObject meta = match.getJSONObject("meta");
+                            String matchMode = meta.getString("mode");
+                            if (matchMode.equalsIgnoreCase(mode) || mode.equalsIgnoreCase("all")) {
+                                matchHistoryDataMode.put(match);
+                            }
+                        }
+
+                        final int totalMatches = Math.min(3, matchHistoryDataMode.length());
+
+                        String agentsUrl = "https://valorant-api.com/v1/agents";
 
                         Request request = new Request.Builder()
-                                .url(mapsUrl)
+                                .url(agentsUrl)
                                 .build();
 
                         client.newCall(request).enqueue(new Callback() {
                             @Override
-                            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                            public void onFailure(Call call, IOException e) {
                                 event.getHook().editOriginal("Failed to retrieve data from the Valorant API").queue();
                                 e.printStackTrace();
                             }
 
                             @Override
-                            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                            public void onResponse(Call call, Response response) throws IOException {
                                 if (!response.isSuccessful()) {
                                     event.getHook().editOriginal("Error: API request failed").queue();
                                     return;
@@ -113,69 +118,99 @@ public class MatchHistory extends ListenerAdapter {
                                 String responseBody = response.body().string();
                                 JSONObject json = new JSONObject(responseBody);
 
-                                JSONArray mapData = json.getJSONArray("data");
+                                JSONArray agentData = json.getJSONArray("data");
 
-                                for (int i = 0; i < totalMatches; i++) {
-                                    JSONObject matchData = matchHistoryDataMode.getJSONObject(i);
-                                    JSONObject meta = matchData.getJSONObject("meta");
-                                    JSONObject stats = matchData.getJSONObject("stats");
-                                    JSONObject character = stats.getJSONObject("character");
-                                    String characterId = character.getString("id");
-                                    String mode = meta.getString("mode");
-                                    String startTime = meta.getString("started_at");
-                                    JSONObject map = meta.getJSONObject("map");
-                                    String mapId = map.getString("id");
-                                    String mapName = map.getString("name");
+                                String mapsUrl = "https://valorant-api.com/v1/maps";
 
-                                    String team = stats.getString("team");
-                                    int kills = stats.getInt("kills");
-                                    int deaths = stats.getInt("deaths");
-                                    int assists = stats.getInt("assists");
+                                Request request = new Request.Builder()
+                                        .url(mapsUrl)
+                                        .build();
 
-                                    JSONObject teams = matchData.getJSONObject("teams");
-                                    int red = teams.getInt("red");
-                                    int blue = teams.getInt("blue");
-
-                                    String winningTeam = (red > blue) ? "red" : "blue";
-
-                                    boolean gameWon = team.equalsIgnoreCase(winningTeam);
-
-                                    Match.MatchBuilder matchBuilder = Match.builder();
-
-                                    matchBuilder.mode(mode)
-                                            .gameWon(gameWon)
-                                            .map(mapName)
-                                            .startTime(startTime.replace("T", " | ").replaceAll("\\..*", ""))
-                                            .kills(kills)
-                                            .deaths(deaths)
-                                            .assists(assists);
-
-                                    for (int j = 0; j < agentData.length(); j++) {
-                                        JSONObject agent = agentData.getJSONObject(j);
-                                        if (characterId.equals(agent.getString("uuid"))) {
-                                            String characterIcon = agent.getString("displayIconSmall");
-                                            matchBuilder.characterIcon(characterIcon);
-                                        }
+                                client.newCall(request).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                                        event.getHook().editOriginal("Failed to retrieve data from the Valorant API").queue();
+                                        e.printStackTrace();
                                     }
 
-                                    for( int j = 0; j < mapData.length(); j++) {
-                                        JSONObject mapNode = mapData.getJSONObject(j);
-                                        if (mapId.equals(mapNode.getString("uuid"))) {
-                                            String mapIcon = mapNode.getString("listViewIcon");
-                                            matchBuilder.mapIcon(mapIcon);
+                                    @Override
+                                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                                        if (!response.isSuccessful()) {
+                                            event.getHook().editOriginal("Error: API request failed").queue();
+                                            return;
                                         }
+
+                                        String responseBody = response.body().string();
+                                        JSONObject json = new JSONObject(responseBody);
+
+                                        JSONArray mapData = json.getJSONArray("data");
+
+                                        for (int i = 0; i < totalMatches; i++) {
+                                            JSONObject matchData = matchHistoryDataMode.getJSONObject(i);
+                                            JSONObject meta = matchData.getJSONObject("meta");
+                                            JSONObject stats = matchData.getJSONObject("stats");
+                                            JSONObject character = stats.getJSONObject("character");
+                                            String characterId = character.getString("id");
+                                            String mode = meta.getString("mode");
+                                            String startTime = meta.getString("started_at");
+                                            JSONObject map = meta.getJSONObject("map");
+                                            String mapId = map.getString("id");
+                                            String mapName = map.getString("name");
+
+                                            String team = stats.getString("team");
+                                            int kills = stats.getInt("kills");
+                                            int deaths = stats.getInt("deaths");
+                                            int assists = stats.getInt("assists");
+
+                                            JSONObject teams = matchData.getJSONObject("teams");
+                                            int red = teams.getInt("red");
+                                            int blue = teams.getInt("blue");
+
+                                            String winningTeam = (red > blue) ? "red" : "blue";
+
+                                            boolean gameWon = team.equalsIgnoreCase(winningTeam);
+
+                                            Match.MatchBuilder matchBuilder = Match.builder();
+
+                                            matchBuilder.mode(mode)
+                                                    .gameWon(gameWon)
+                                                    .playerName(playerName)
+                                                    .playerTag(playerTag)
+                                                    .map(mapName)
+                                                    .startTime(startTime.replace("T", " | ").replaceAll("\\..*", ""))
+                                                    .kills(kills)
+                                                    .deaths(deaths)
+                                                    .assists(assists);
+
+                                            for (int j = 0; j < agentData.length(); j++) {
+                                                JSONObject agent = agentData.getJSONObject(j);
+                                                if (characterId.equals(agent.getString("uuid"))) {
+                                                    String characterIcon = agent.getString("displayIconSmall");
+                                                    matchBuilder.characterIcon(characterIcon);
+                                                }
+                                            }
+
+                                            for( int j = 0; j < mapData.length(); j++) {
+                                                JSONObject mapNode = mapData.getJSONObject(j);
+                                                if (mapId.equals(mapNode.getString("uuid"))) {
+                                                    String mapIcon = mapNode.getString("listViewIcon");
+                                                    matchBuilder.mapIcon(mapIcon);
+                                                }
+                                            }
+
+                                            Match match = matchBuilder.build();
+
+                                            matches.add(match);
+                                        }
+                                        callback.onSuccess(matches);
                                     }
 
-                                    Match match = matchBuilder.build();
-
-                                    matches.add(match);
-                                }
-                                callback.onSuccess(matches);
+                                });
                             }
-
                         });
                     }
                 });
+
             }
         });
     }
@@ -200,7 +235,7 @@ public class MatchHistory extends ListenerAdapter {
                     MessageEmbed embed = new EmbedBuilder()
                             .setColor(match.isGameWon() ? Color.GREEN : Color.RED)
                             .setThumbnail(match.getCharacterIcon())
-                            .addField("Player", name + "#" + tag, true)
+                            .addField("Player", match.getPlayerName() + "#" + match.getPlayerTag(), true)
                             .addField("Mode", match.getMode(), true)
                             .addField(match.isGameWon() ? "WIN" : "LOSS", "", true)
                             .addField("Kills", Integer.toString(match.getKills()), true)
