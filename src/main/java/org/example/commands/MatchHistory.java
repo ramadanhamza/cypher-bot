@@ -172,23 +172,29 @@ public class MatchHistory extends ListenerAdapter {
 
                                             if (red > blue) {
                                                 winningTeam = "red";
+                                                if (team.equalsIgnoreCase(winningTeam)) {
+                                                    gameWon = "win";
+                                                    embedColor = Color.GREEN;
+                                                }
+                                                else {
+                                                    gameWon = "lose";
+                                                    embedColor = Color.RED;
+                                                }
                                             }
                                             else if (blue > red) {
                                                 winningTeam = "blue";
+                                                if (team.equalsIgnoreCase(winningTeam)) {
+                                                    gameWon = "win";
+                                                    embedColor = Color.GREEN;
+                                                }
+                                                else {
+                                                    gameWon = "lose";
+                                                    embedColor = Color.RED;
+                                                }
                                             }
                                             else {
-                                                winningTeam = "none";
                                                 gameWon = "draw";
                                                 embedColor = Color.ORANGE;
-                                            }
-
-                                            if (team.equalsIgnoreCase(winningTeam)) {
-                                                gameWon = "win";
-                                                embedColor = Color.GREEN;
-                                            }
-                                            else if (!team.equalsIgnoreCase(winningTeam)) {
-                                                gameWon = "lose";
-                                                embedColor = Color.RED;
                                             }
 
                                             Match.MatchBuilder matchBuilder = Match.builder();
