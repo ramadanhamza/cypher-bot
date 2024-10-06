@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.awt.*;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,5 +22,6 @@ public class Match {
     private int assists;
     private String playerName;
     private String playerTag;
-    private boolean gameWon;
+    private String gameWon;
+    private Color embedColor;
 }

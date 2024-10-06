@@ -32,7 +32,7 @@ public class MatchHistory extends ListenerAdapter {
                 .addHeader("Authorization", System.getenv("VALORANT_API_KEY"))
                 .build();
 
-        client.newCall(request).enqueue(new okhttp3.Callback() {
+        client.newCall(request).enqueue(new Callback() {
 
             @Override
             public void onFailure(Call call, IOException e) {
@@ -62,7 +62,7 @@ public class MatchHistory extends ListenerAdapter {
                         .addHeader("Authorization", System.getenv("VALORANT_API_KEY"))
                         .build();
 
-                client.newCall(request).enqueue(new okhttp3.Callback() {
+                client.newCall(request).enqueue(new Callback() {
 
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -166,14 +166,36 @@ public class MatchHistory extends ListenerAdapter {
                                             int red = teams.getInt("red");
                                             int blue = teams.getInt("blue");
 
-                                            String winningTeam = (red > blue) ? "red" : "blue";
+                                            String winningTeam;
+                                            String gameWon = "";
+                                            Color embedColor = null;
 
-                                            boolean gameWon = team.equalsIgnoreCase(winningTeam);
+                                            if (red > blue) {
+                                                winningTeam = "red";
+                                            }
+                                            else if (blue > red) {
+                                                winningTeam = "blue";
+                                            }
+                                            else {
+                                                winningTeam = "none";
+                                                gameWon = "draw";
+                                                embedColor = Color.ORANGE;
+                                            }
+
+                                            if (team.equalsIgnoreCase(winningTeam)) {
+                                                gameWon = "win";
+                                                embedColor = Color.GREEN;
+                                            }
+                                            else if (!team.equalsIgnoreCase(winningTeam)) {
+                                                gameWon = "lose";
+                                                embedColor = Color.RED;
+                                            }
 
                                             Match.MatchBuilder matchBuilder = Match.builder();
 
                                             matchBuilder.mode(mode)
                                                     .gameWon(gameWon)
+                                                    .embedColor(embedColor)
                                                     .playerName(playerName)
                                                     .playerTag(playerTag)
                                                     .map(mapName)
@@ -233,11 +255,11 @@ public class MatchHistory extends ListenerAdapter {
 
                 for (Match match : matches) {
                     MessageEmbed embed = new EmbedBuilder()
-                            .setColor(match.isGameWon() ? Color.GREEN : Color.RED)
+                            .setColor(match.getEmbedColor())
                             .setThumbnail(match.getCharacterIcon())
                             .addField("Player", match.getPlayerName() + "#" + match.getPlayerTag(), true)
                             .addField("Mode", match.getMode(), true)
-                            .addField(match.isGameWon() ? "WIN" : "LOSS", "", true)
+                            .addField(match.getGameWon().toUpperCase(), "", true)
                             .addField("Kills", Integer.toString(match.getKills()), true)
                             .addField("Deaths", Integer.toString(match.getDeaths()), true)
                             .addField("Assists", Integer.toString(match.getAssists()), true)
