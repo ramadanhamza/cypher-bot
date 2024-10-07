@@ -166,29 +166,24 @@ public class MatchHistory extends ListenerAdapter {
                                             int red = teams.getInt("red");
                                             int blue = teams.getInt("blue");
 
-                                            String winningTeam;
+                                            String winningTeam = "";
                                             String gameWon = "";
                                             Color embedColor = null;
 
                                             if (red > blue) {
                                                 winningTeam = "red";
-                                                if (team.equalsIgnoreCase(winningTeam)) {
-                                                    gameWon = "win";
-                                                    embedColor = Color.GREEN;
-                                                }
-                                                else {
-                                                    gameWon = "lose";
-                                                    embedColor = Color.RED;
-                                                }
                                             }
                                             else if (blue > red) {
                                                 winningTeam = "blue";
+                                            }
+
+                                            if (!winningTeam.isEmpty()) {
                                                 if (team.equalsIgnoreCase(winningTeam)) {
                                                     gameWon = "win";
                                                     embedColor = Color.GREEN;
                                                 }
                                                 else {
-                                                    gameWon = "lose";
+                                                    gameWon = "loss";
                                                     embedColor = Color.RED;
                                                 }
                                             }
@@ -196,6 +191,8 @@ public class MatchHistory extends ListenerAdapter {
                                                 gameWon = "draw";
                                                 embedColor = Color.ORANGE;
                                             }
+
+
 
                                             Match.MatchBuilder matchBuilder = Match.builder();
 
