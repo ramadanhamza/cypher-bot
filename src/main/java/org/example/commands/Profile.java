@@ -227,12 +227,10 @@ public class Profile extends ListenerAdapter {
             EmbedBuilder eb = new EmbedBuilder()
                     .setTitle("Example Embed " + i)
                     .setDescription("Hello World");
-
-            Page embedPage = InteractPage.of(eb.build());
             pages.add(InteractPage.of(eb.build()));
         }
 
-        event.getChannel().sendMessage((CharSequence) pages.get(0).getContent()).queue(success -> {
+        event.getChannel().sendMessage((MessageCreateData) pages.get(0).getContent()).queue(success -> {
             Pages.paginate(success, pages, /* Use buttons? */ true);
         });
 
