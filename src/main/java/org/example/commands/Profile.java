@@ -6,7 +6,9 @@ import com.github.ygimenez.model.Page;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import okhttp3.Call;
@@ -217,10 +219,17 @@ public class Profile extends ListenerAdapter {
         String name = event.getOption("name").getAsString();
         String tag = event.getOption("tag").getAsString();
 
+
+
         List<Page> pages = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            pages.add(InteractPage.of("This is entry Nº " + (i + 1)));
+            EmbedBuilder eb = new EmbedBuilder()
+                    .setTitle("Example Embed " + i)
+                    .setDescription("Hello World");
+
+            Page embedPage = InteractPage.of(eb.build());
+            pages.add(InteractPage.of(eb.build()));
         }
 
         event.getChannel().sendMessage((CharSequence) pages.get(0).getContent()).queue(success -> {
