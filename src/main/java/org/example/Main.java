@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import org.example.commands.MatchHistory;
 import com.github.ygimenez.method.Pages;
+import org.example.commands.PagesTest;
 import org.example.commands.Profile;
 
 public class Main {
@@ -17,5 +18,6 @@ public class Main {
         jda.addEventListener(new Listeners());
         jda.addEventListener(new Profile());
         jda.addEventListener(new MatchHistory());
+        jda.addEventListener(new PagesTest());
     }
 }
