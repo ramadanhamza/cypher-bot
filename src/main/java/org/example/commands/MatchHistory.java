@@ -179,16 +179,16 @@ public class MatchHistory extends ListenerAdapter {
 
                                             if (!winningTeam.isEmpty()) {
                                                 if (team.equalsIgnoreCase(winningTeam)) {
-                                                    gameWon = "win";
+                                                    gameWon = "win (" + blue + " - " + red + ")";
                                                     embedColor = Color.GREEN;
                                                 }
                                                 else {
-                                                    gameWon = "loss";
+                                                    gameWon = "loss (" + blue + " - " + red + ")";
                                                     embedColor = Color.RED;
                                                 }
                                             }
                                             else {
-                                                gameWon = "draw";
+                                                gameWon = "draw (" + blue + " - " + red + ")";
                                                 embedColor = Color.ORANGE;
                                             }
 
