@@ -4,6 +4,7 @@ import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.InteractPage;
 import com.github.ygimenez.model.Page;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -222,7 +223,10 @@ public class Profile extends ListenerAdapter {
             pages.add(InteractPage.of("This is entry Nº " + (i + 1)));
         }
 
-        event.getChannel().sendMessage((MessageCreateData) pages.get(0).getContent()).queue(success -> {
+        Message message = (Message) pages.get(0).getContent(); // Assuming getContent() returns a Message
+        MessageCreateData messageCreateData = MessageCreateData.fromMessage(message);
+
+        event.getChannel().sendMessage(messageCreateData).queue(success -> {
             Pages.paginate(success, pages, true);
         });
 
