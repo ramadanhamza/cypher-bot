@@ -1,9 +1,13 @@
 package org.example.commands;
 
+import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.model.InteractPage;
+import com.github.ygimenez.model.Page;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -212,7 +216,17 @@ public class Profile extends ListenerAdapter {
         String name = event.getOption("name").getAsString();
         String tag = event.getOption("tag").getAsString();
 
-        PlayerProfile.PlayerProfileBuilder profileBuilder = PlayerProfile.builder();
+        List<Page> pages = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            pages.add(InteractPage.of("This is entry Nº " + (i + 1)));
+        }
+
+        event.getChannel().sendMessage((MessageCreateData) pages.get(0).getContent()).queue(success -> {
+            Pages.paginate(success, pages, true);
+        });
+
+        /*PlayerProfile.PlayerProfileBuilder profileBuilder = PlayerProfile.builder();
 
         fetchHighestRank(region, name, tag, event, new FetchHighestRankCallback() {
             @Override
@@ -271,6 +285,6 @@ public class Profile extends ListenerAdapter {
             public void onFailure(String errorMessage) {
                 event.reply(errorMessage).queue();
             }
-        });
+        });*/
     }
 }
