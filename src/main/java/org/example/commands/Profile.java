@@ -220,15 +220,13 @@ public class Profile extends ListenerAdapter {
         List<Page> pages = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            pages.add(InteractPage.of("This is entry Nº " + (i + 1)));
+            pages.add(Page.of("This is entry Nº " + (i + 1)));
         }
 
-        Message message = (Message) pages.get(0).getContent(); // Assuming getContent() returns a Message
-        MessageCreateData messageCreateData = MessageCreateData.fromMessage(message);
-
-        event.getChannel().sendMessage(messageCreateData).queue(success -> {
-            Pages.paginate(success, pages, true);
+        event.getChannel().sendMessage((MessageCreateData) pages.get(0).getContent()).queue(success -> {
+            Pages.paginate(success, pages, /* Use buttons? */ true);
         });
+
 
         /*PlayerProfile.PlayerProfileBuilder profileBuilder = PlayerProfile.builder();
 
