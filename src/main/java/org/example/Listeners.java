@@ -13,6 +13,8 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onReady(@NotNull ReadyEvent event) {
 
+        event.getJDA().upsertCommand("pages", "Description for pages.").queue();
+
         event.getJDA().upsertCommand("matchhistory", "Shows the last 3 games for a valorant account in the given mode.").addOptions(
                 new OptionData(
                         OptionType.STRING,

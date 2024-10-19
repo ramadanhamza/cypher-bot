@@ -192,8 +192,6 @@ public class MatchHistory extends ListenerAdapter {
                                                 embedColor = Color.ORANGE;
                                             }
 
-
-
                                             Match.MatchBuilder matchBuilder = Match.builder();
 
                                             matchBuilder.mode(mode)
