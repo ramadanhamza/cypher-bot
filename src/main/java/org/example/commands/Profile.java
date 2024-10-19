@@ -219,23 +219,7 @@ public class Profile extends ListenerAdapter {
         String name = event.getOption("name").getAsString();
         String tag = event.getOption("tag").getAsString();
 
-
-
-        List<Page> pages = new ArrayList<>();
-
-        for (int i = 0; i < 10; i++) {
-            EmbedBuilder eb = new EmbedBuilder()
-                    .setTitle("Example Embed " + i)
-                    .setDescription("Hello World");
-            pages.add(InteractPage.of(eb.build()));
-        }
-
-        event.getChannel().sendMessage((MessageCreateData) pages.get(0).getContent()).queue(success -> {
-            Pages.paginate(success, pages, /* Use buttons? */ true);
-        });
-
-
-        /*PlayerProfile.PlayerProfileBuilder profileBuilder = PlayerProfile.builder();
+        PlayerProfile.PlayerProfileBuilder profileBuilder = PlayerProfile.builder();
 
         fetchHighestRank(region, name, tag, event, new FetchHighestRankCallback() {
             @Override
@@ -294,6 +278,6 @@ public class Profile extends ListenerAdapter {
             public void onFailure(String errorMessage) {
                 event.reply(errorMessage).queue();
             }
-        });*/
+        });
     }
 }
