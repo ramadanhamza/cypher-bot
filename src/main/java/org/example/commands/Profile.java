@@ -220,7 +220,7 @@ public class Profile extends ListenerAdapter {
         List<Page> pages = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            pages.add(Page.of("This is entry Nº " + (i + 1)));
+            pages.add(InteractPage.of("This is entry Nº " + (i + 1)));
         }
 
         event.getChannel().sendMessage((CharSequence) pages.get(0).getContent()).queue(success -> {
