@@ -223,7 +223,7 @@ public class Profile extends ListenerAdapter {
             pages.add(Page.of("This is entry Nº " + (i + 1)));
         }
 
-        event.getChannel().sendMessage((MessageCreateData) pages.get(0).getContent()).queue(success -> {
+        event.getChannel().sendMessage("Hello world").queue(success -> {
             Pages.paginate(success, pages, /* Use buttons? */ true);
         });
 
