@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import okhttp3.*;
 import org.example.callbacks.FetchMatchHistoryCallback;
 import org.example.models.Match;
+import org.example.pagination.PaginationContext;
+import org.example.pagination.PaginationManager;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,9 +23,12 @@ import java.util.List;
 
 public class MatchHistory extends ListenerAdapter {
 
+    PaginationManager paginationManager = new PaginationManager();
+
     private List<MessageEmbed> embeds = new ArrayList<>();
     private int currentPage = 0;
     private String commandUserId;
+    private Long interactionId;
     private final OkHttpClient client = new OkHttpClient();
 
     public void fetchMatchHistory(String region, String name, String tag, String mode, @NotNull SlashCommandInteractionEvent event, FetchMatchHistoryCallback callback) {
@@ -279,6 +284,10 @@ public class MatchHistory extends ListenerAdapter {
                     embeds.add(embed);
                 }
 
+                interactionId = event.getInteraction().getIdLong();
+                PaginationContext context = new PaginationContext(currentPage, embeds);
+                paginationManager.addPaginationContext(interactionId, context);
+
                 event.replyEmbeds(embeds.get(currentPage))
                         .addActionRow(previousButton, nextButton)
                         .queue();
@@ -295,28 +304,35 @@ public class MatchHistory extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
 
-        // Check if the button interaction is from the pagination
         if (!event.getComponentId().equals("previous") && !event.getComponentId().equals("next")) return;
 
         if (!event.getUser().getId().equals(commandUserId)) {
             event.reply("Pagination is restricted to the user who issued the command. If you would like to paginate, please use the command yourself!").setEphemeral(true).queue();
         }
 
-        // Update currentPage based on the button pressed
+        PaginationContext context = paginationManager.getPaginationContext(event.getMessage().getInteraction().getIdLong());
+
+        if (context == null) {
+            event.reply("No active pagination session found. Please start the command again.").setEphemeral(true).queue();
+            return;
+        }
+
+        int currentPage = context.getCurrentPage();
+        List<MessageEmbed> embeds = context.getEmbeds();
+
         if (event.getComponentId().equals("previous")) {
             if (currentPage > 0) {
-                currentPage--;
+                context.setCurrentPage(--currentPage);
             }
         } else {
             if (currentPage < embeds.size() - 1) {
-                currentPage++;
+                context.setCurrentPage(++currentPage);
             }
         }
 
         Button previousButton = currentPage == 0 ? Button.primary("previous", "◀\uFE0F").asDisabled() : Button.primary("previous", "◀\uFE0F");
         Button nextButton = currentPage == embeds.size() - 1 ? Button.primary("next", "▶\uFE0F").asDisabled() : Button.primary("next", "▶\uFE0F");
 
-        // Update the message with the new embed
         event.editMessageEmbeds(embeds.get(currentPage))
                 .setActionRow(previousButton, nextButton)
                 .queue();
