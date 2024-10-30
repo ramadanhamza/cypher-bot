@@ -23,6 +23,7 @@ public class MatchHistory extends ListenerAdapter {
 
     private List<MessageEmbed> embeds = new ArrayList<>();
     private int currentPage = 0;
+    private String commandUserId;
     private final OkHttpClient client = new OkHttpClient();
 
     public void fetchMatchHistory(String region, String name, String tag, String mode, @NotNull SlashCommandInteractionEvent event, FetchMatchHistoryCallback callback) {
@@ -244,6 +245,7 @@ public class MatchHistory extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (!event.getName().equals("matchhistory")) return;
 
+        commandUserId = event.getUser().getId();
         embeds = new ArrayList<>();
         currentPage = 0;
 
@@ -295,6 +297,10 @@ public class MatchHistory extends ListenerAdapter {
 
         // Check if the button interaction is from the pagination
         if (!event.getComponentId().equals("previous") && !event.getComponentId().equals("next")) return;
+
+        if (!event.getUser().getId().equals(commandUserId)) {
+            event.reply("Pagination is restricted to the user who issued the command. If you would like to paginate, please use the command yourself!").setEphemeral(true).queue();
+        }
 
         // Update currentPage based on the button pressed
         if (event.getComponentId().equals("previous")) {
