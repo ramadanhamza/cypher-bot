@@ -3,7 +3,9 @@ package org.example.commands;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import okhttp3.*;
 import org.example.callbacks.FetchMatchHistoryCallback;
 import org.example.models.Match;
@@ -19,6 +21,8 @@ import java.util.List;
 
 public class MatchHistory extends ListenerAdapter {
 
+    private List<MessageEmbed> embeds = new ArrayList<>();
+    private int currentPage = 0;
     private final OkHttpClient client = new OkHttpClient();
 
     public void fetchMatchHistory(String region, String name, String tag, String mode, @NotNull SlashCommandInteractionEvent event, FetchMatchHistoryCallback callback) {
@@ -93,8 +97,6 @@ public class MatchHistory extends ListenerAdapter {
                             }
                         }
 
-                        final int totalMatches = Math.min(3, matchHistoryDataMode.length());
-
                         String agentsUrl = "https://valorant-api.com/v1/agents";
 
                         Request request = new Request.Builder()
@@ -145,7 +147,7 @@ public class MatchHistory extends ListenerAdapter {
 
                                         JSONArray mapData = json.getJSONArray("data");
 
-                                        for (int i = 0; i < totalMatches; i++) {
+                                        for (int i = 0; i < matchHistoryDataMode.length(); i++) {
                                             JSONObject matchData = matchHistoryDataMode.getJSONObject(i);
                                             JSONObject meta = matchData.getJSONObject("meta");
                                             JSONObject stats = matchData.getJSONObject("stats");
@@ -242,17 +244,21 @@ public class MatchHistory extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (!event.getName().equals("matchhistory")) return;
 
+        embeds = new ArrayList<>();
+        currentPage = 0;
+
         String region = event.getOption("region").getAsString();
         String name = event.getOption("name").getAsString();
         String tag = event.getOption("tag").getAsString();
         String mode = event.getOption("mode").getAsString();
 
-        event.deferReply().queue();
-
         fetchMatchHistory(region, name, tag, mode, event, new FetchMatchHistoryCallback() {
             @Override
             public void onSuccess(List<Match> matches) {
-                List<MessageEmbed> embeds = new ArrayList<>();
+
+                Button previousButton = currentPage == 0 ? Button.primary("previous", "◀\uFE0F").asDisabled() : Button.primary("previous", "◀\uFE0F");
+                Button nextButton = currentPage == embeds.size() - 1 ? Button.primary("next", "▶\uFE0F").asDisabled() : Button.primary("next", "▶\uFE0F");
+
 
                 for (Match match : matches) {
                     MessageEmbed embed = new EmbedBuilder()
@@ -271,14 +277,43 @@ public class MatchHistory extends ListenerAdapter {
                     embeds.add(embed);
                 }
 
-                event.getHook().editOriginalEmbeds(embeds).queue();
+                event.replyEmbeds(embeds.get(currentPage))
+                        .addActionRow(previousButton, nextButton)
+                        .queue();
+
             }
 
             @Override
             public void onFailure(String errorMessage) {
-                event.getHook().editOriginal(errorMessage).queue();
+                event.reply(errorMessage).queue();
             }
         });
+    }
+
+    @Override
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+
+        // Check if the button interaction is from the pagination
+        if (!event.getComponentId().equals("previous") && !event.getComponentId().equals("next")) return;
+
+        // Update currentPage based on the button pressed
+        if (event.getComponentId().equals("previous")) {
+            if (currentPage > 0) {
+                currentPage--;
+            }
+        } else {
+            if (currentPage < embeds.size() - 1) {
+                currentPage++;
+            }
+        }
+
+        Button previousButton = currentPage == 0 ? Button.primary("previous", "◀\uFE0F").asDisabled() : Button.primary("previous", "◀\uFE0F");
+        Button nextButton = currentPage == embeds.size() - 1 ? Button.primary("next", "▶\uFE0F").asDisabled() : Button.primary("next", "▶\uFE0F");
+
+        // Update the message with the new embed
+        event.editMessageEmbeds(embeds.get(currentPage))
+                .setActionRow(previousButton, nextButton)
+                .queue();
     }
 }
 

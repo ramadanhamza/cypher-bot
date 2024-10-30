@@ -13,7 +13,7 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onReady(@NotNull ReadyEvent event) {
 
-        event.getJDA().upsertCommand("matchhistory", "Shows the last 3 games for a valorant account in the given mode.").addOptions(
+        event.getJDA().upsertCommand("matchhistory", "Shows the match history for a valorant account in the given mode.").addOptions(
                 new OptionData(
                         OptionType.STRING,
                         "region",
